@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useMakeStyles } from '../hooks/useMakeStyles';
+import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 import { Rep } from '../types';
 import DataBox from './DataBox';
 import { meanBy } from 'lodash';
@@ -16,7 +16,7 @@ export default function LastRep({
   sensorStrength: string;
   sensorName: string;
   onClickNewSet: () => void;
-  lastRepRecordedAt: number | undefined;
+  lastRepRecordedAt: number | null | undefined;
 }) {
   const styles = useMakeStyles(makeStyles);
   const [timer, setTimer] = React.useState('');
@@ -34,15 +34,17 @@ export default function LastRep({
 
   React.useEffect(() => {
     const updateClock = () => {
-      const currentTime = Date.now();
-      const elapsedTime = currentTime - lastRepRecordedAt;
-      const elapsedSeconds = Math.round(elapsedTime / 1000);
-      const formattedMinutes = Math.round(elapsedSeconds / 60);
-      const formattedSeconds = elapsedSeconds % 60;
-      const formattedTimer = `${Math.min(formattedMinutes, 99)}:${
-        formattedSeconds < 10 ? '0' + formattedSeconds : formattedSeconds
-      }`;
-      setTimer(formattedTimer);
+      if (lastRepRecordedAt) {
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - lastRepRecordedAt;
+        const elapsedSeconds = Math.round(elapsedTime / 1000);
+        const formattedMinutes = Math.round(elapsedSeconds / 60);
+        const formattedSeconds = elapsedSeconds % 60;
+        const formattedTimer = `${Math.min(formattedMinutes, 99)}:${
+          formattedSeconds < 10 ? `0${formattedSeconds}` : formattedSeconds
+        }`;
+        setTimer(formattedTimer);
+      }
     };
 
     let interval: NodeJS.Timer;
@@ -91,7 +93,7 @@ export default function LastRep({
   );
 }
 
-const makeStyles = (vmin: number) => {
+const makeStyles = ({ vmin }: MakeStyles) => {
   return StyleSheet.create({
     row: {
       marginBottom: 2 * vmin,

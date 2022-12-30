@@ -1,14 +1,14 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useMakeStyles } from '../hooks/useMakeStyles';
+import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 
 export default function DataRow({ data, header }: { data: string[]; header?: boolean }) {
   const styles = useMakeStyles(makeStyles);
 
   return (
     <View style={header ? styles.headerRow : styles.row}>
-      {data.map((d) => (
-        <View style={styles.cell}>
+      {data.map((d, index) => (
+        <View style={styles.cell} key={index}>
           <Text style={header ? styles.headerText : styles.text}>{d}</Text>
         </View>
       ))}
@@ -16,13 +16,13 @@ export default function DataRow({ data, header }: { data: string[]; header?: boo
   );
 }
 
-const makeStyles = (vmin: number) => {
+const makeStyles = ({ vmin }: MakeStyles) => {
   return StyleSheet.create({
     row: {
       flex: 1,
       flexDirection: 'row',
-      minHeight: 8 * vmin,
-      maxHeight: 8 * vmin,
+      minHeight: 7 * vmin,
+      maxHeight: 7 * vmin,
       borderBottomColor: 'white',
       borderBottomWidth: 0.5 * vmin,
     },

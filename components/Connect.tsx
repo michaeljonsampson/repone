@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { sortBy } from 'lodash';
 import { Device } from 'react-native-ble-plx';
-import { useMakeStyles } from '../hooks/useMakeStyles';
+import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 import { DeviceInfo } from '../types';
 
 export default function Connect({
@@ -15,6 +15,9 @@ export default function Connect({
   connectError,
   errors,
   lastDevice,
+  connecting,
+  sensor,
+  disconnect,
 }: {
   scanning: boolean;
   scanForDevices: () => void;
@@ -24,12 +27,34 @@ export default function Connect({
   connectDirect: () => void;
   connectError: string | null;
   errors: any[];
-  lastDevice: DeviceInfo;
+  lastDevice: DeviceInfo | null | undefined;
+  connecting: boolean;
+  sensor: Device | undefined | null;
+  disconnect: () => void;
 }) {
   const styles = useMakeStyles(makeStyles);
 
+  if (connecting) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>Connecting...</Text>
+      </View>
+    );
+  }
+
+  if (sensor) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.connectionText}>Connected to {sensor?.name}</Text>
+        <Pressable style={styles.button} onPress={disconnect}>
+          <Text style={styles.buttonText}>Disconnect</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
-    <View>
+    <View style={styles.container}>
       <>
         {!scanning && (
           <Pressable style={styles.button} onPress={scanForDevices}>
@@ -46,7 +71,7 @@ export default function Connect({
       {sortBy(
         devices.map((d) => {
           return (
-            <View>
+            <View key={d.id}>
               <Pressable style={styles.button} onPress={() => connect(d)}>
                 <Text style={styles.buttonText}>Connect to {d.name}</Text>
               </Pressable>
@@ -55,7 +80,7 @@ export default function Connect({
         }),
         'name'
       )}
-      {!!lastDevice && (
+      {!!lastDevice?.id && (
         <View>
           <Pressable style={styles.button} onPress={() => connectDirect()}>
             <Text style={styles.buttonText}>Connect to last device ({lastDevice.name})</Text>
@@ -79,8 +104,12 @@ export default function Connect({
   );
 }
 
-const makeStyles = (vmin: number) => {
+const makeStyles = ({ vmin }: MakeStyles) => {
   return StyleSheet.create({
+    container: {
+      backgroundColor: 'black',
+      padding: 5 * vmin,
+    },
     button: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -91,12 +120,18 @@ const makeStyles = (vmin: number) => {
       borderRadius: 5 * vmin,
       borderWidth: 0.5 * vmin,
       borderColor: 'white',
-      minWidth: 80 * vmin,
+      minWidth: 60 * vmin,
     },
     buttonText: {
-      fontSize: 24,
+      fontSize: 3 * vmin,
       fontWeight: 'bold',
       color: 'white',
+    },
+    connectionText: {
+      color: 'white',
+      fontSize: 4 * vmin,
+      textAlign: 'center',
+      marginBottom: 5 * vmin,
     },
     text: { color: 'white' },
   });

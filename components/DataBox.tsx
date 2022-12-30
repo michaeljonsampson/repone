@@ -1,6 +1,6 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useMakeStyles } from '../hooks/useMakeStyles';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 
 export default function DataBox({
   children,
@@ -33,7 +33,7 @@ export default function DataBox({
   );
 }
 
-const makeStyles = (vmin: number) => {
+const makeStyles = ({ vmin }: MakeStyles) => {
   return StyleSheet.create({
     box: {
       flex: 1,

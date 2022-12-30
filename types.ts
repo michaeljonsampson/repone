@@ -12,4 +12,4 @@ export type Rep = {
   recordedAt: number;
 };
 
-export type DeviceInfo = { name: string; id: string };
+export type DeviceInfo = { name?: string | null | undefined; id?: string };

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useMakeStyles } from '../hooks/useMakeStyles';
+import { ScrollView, StyleSheet } from 'react-native';
+import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 import { Rep } from '../types';
 import DataRow from './DataRow';
 
@@ -12,6 +12,7 @@ export default function SetTable({ reps }: { reps: Rep[] }) {
       <DataRow header data={['Rep', 'Velocity (mm/s)', 'ROM (mm)', 'Duration (ms)']} />
       {reps.map((rep, index) => (
         <DataRow
+          key={rep.recordedAt}
           data={[
             String(reps.length - index),
             String(rep.averageVelocity),
@@ -24,7 +25,7 @@ export default function SetTable({ reps }: { reps: Rep[] }) {
   );
 }
 
-const makeStyles = (vmin: number) => {
+const makeStyles = ({ vmin }: MakeStyles) => {
   return StyleSheet.create({
     table: {
       flex: 1,
