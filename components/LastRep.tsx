@@ -7,14 +7,10 @@ import { meanBy } from 'lodash';
 
 export default function LastRep({
   reps,
-  sensorStrength,
-  sensorName,
   onClickNewSet,
   lastRepRecordedAt,
 }: {
   reps: Rep[];
-  sensorStrength: string;
-  sensorName: string;
   onClickNewSet: () => void;
   lastRepRecordedAt: number | null | undefined;
 }) {
@@ -38,7 +34,7 @@ export default function LastRep({
         const currentTime = Date.now();
         const elapsedTime = currentTime - lastRepRecordedAt;
         const elapsedSeconds = Math.round(elapsedTime / 1000);
-        const formattedMinutes = Math.round(elapsedSeconds / 60);
+        const formattedMinutes = Math.floor(elapsedSeconds / 60);
         const formattedSeconds = elapsedSeconds % 60;
         const formattedTimer = `${Math.min(formattedMinutes, 99)}:${
           formattedSeconds < 10 ? `0${formattedSeconds}` : formattedSeconds
@@ -78,8 +74,8 @@ export default function LastRep({
       </View>
       <View style={styles.row}>
         <DataBox>
-          <Text style={styles.label}>{sensorName}</Text>
-          <Text style={styles.sensorStrength}>{sensorStrength}</Text>
+          <Text style={styles.label}>ROM</Text>
+          <Text style={styles.value}>{lastRep?.rom}</Text>
         </DataBox>
         <DataBox middle>
           <Text style={styles.label}>Since Last Rep</Text>
@@ -120,7 +116,6 @@ const makeStyles = ({ vmin }: MakeStyles) => {
       fontWeight: 'bold',
       color: 'white',
     },
-    sensorStrength: { fontSize: 4 * vmin, fontWeight: 'bold', color: 'white' },
     button: { fontSize: 6 * vmin, fontWeight: 'bold', color: 'white' },
   });
 };

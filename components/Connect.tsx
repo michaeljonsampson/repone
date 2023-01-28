@@ -18,6 +18,7 @@ export default function Connect({
   connecting,
   sensor,
   disconnect,
+  sensorStrength,
 }: {
   scanning: boolean;
   scanForDevices: () => void;
@@ -31,6 +32,7 @@ export default function Connect({
   connecting: boolean;
   sensor: Device | undefined | null;
   disconnect: () => void;
+  sensorStrength: string;
 }) {
   const styles = useMakeStyles(makeStyles);
 
@@ -46,6 +48,7 @@ export default function Connect({
     return (
       <View style={styles.container}>
         <Text style={styles.connectionText}>Connected to {sensor?.name}</Text>
+        <Text style={styles.sensorStrength}>{sensorStrength}</Text>
         <Pressable style={styles.button} onPress={disconnect}>
           <Text style={styles.buttonText}>Disconnect</Text>
         </Pressable>
@@ -134,5 +137,6 @@ const makeStyles = ({ vmin }: MakeStyles) => {
       marginBottom: 5 * vmin,
     },
     text: { color: 'white' },
+    sensorStrength: { fontSize: 4 * vmin, fontWeight: 'bold', color: 'white' },
   });
 };

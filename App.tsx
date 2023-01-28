@@ -107,7 +107,6 @@ export default function App() {
   const connect = React.useCallback(
     (d: Device) => {
       const startConnection = async () => {
-        console.log('connected device', d);
         setConnecting(true);
         stopScan();
         try {
@@ -140,7 +139,6 @@ export default function App() {
           let device = await bluetoothManager.connectToDevice(lastDevice.id);
           device = await device.discoverAllServicesAndCharacteristics();
           device = await device.requestConnectionPriority(ConnectionPriority.High);
-          console.log('just connected');
           setSensor(device);
           setConnecting(false);
           setConnectError(null);
@@ -160,7 +158,6 @@ export default function App() {
     if (sensor) {
       try {
         const c = await sensor.isConnected();
-        // console.log('connected', c);
         if (c) {
           const newDevice = await sensor.readRSSI();
           setRssi(newDevice.rssi);
@@ -180,34 +177,6 @@ export default function App() {
       setSensor(null);
     }
   }, []);
-
-  // const manualDataRead = React.useCallback(
-  //   async (sensor: null | Device) => {
-  //     if (sensor) {
-  //       try {
-  //         const device = await sensor.discoverAllServicesAndCharacteristics();
-  //         const char = await device.readCharacteristicForService(serviceUuid, characteristicUuid);
-  //         console.log('manualDataRead');
-  //         const rep = getRepDataFromChar({ char, setLog });
-  //         console.log(rep);
-  //         console.log('--------------------------------------------------------------');
-  //         connectionCheckerRef.current = setTimeout(() => {
-  //           manualDataRead(device);
-  //         }, 500);
-  //       } catch (e) {
-  //         console.log('Reading Data', e);
-  //         if (e) {
-  //           setLog((prev) => [...prev, 'reading data', e.message]);
-  //           console.log('reconnecting');
-  //           connectDirect();
-  //         }
-  //       }
-  //     } else {
-  //       setSensor(null);
-  //     }
-  //   },
-  //   [connectDirect]
-  // );
 
   const watchForData = React.useCallback(async (sensor: null | Device) => {
     if (sensor) {
@@ -249,7 +218,6 @@ export default function App() {
   React.useEffect(() => {
     checkConnection(sensor);
     watchForData(sensor);
-    // manualDataRead(sensor);
     if (sensor) {
       sensor.onDisconnected((error) => {
         // if not error that means we called #cancelConnection.
@@ -286,7 +254,7 @@ export default function App() {
         }
         return;
       }
-      console.log('Device Name', device?.name);
+
       if (device?.name?.includes('RepOne')) {
         setDevices((prev) => uniqBy([device, ...prev], (d) => d.name));
       }
@@ -345,6 +313,7 @@ export default function App() {
           connecting={connecting}
           sensor={sensor}
           disconnect={disconnect}
+          sensorStrength={sensorStrength}
         />
       </Modal>
       <Modal
@@ -372,8 +341,6 @@ export default function App() {
       <LastRep
         onClickNewSet={() => setReps([])}
         reps={validReps}
-        sensorName={sensor ? sensor.name ?? 'RepOne' : 'Not Connected'}
-        sensorStrength={sensorStrength}
         lastRepRecordedAt={lastRepRecordedAt}
       />
       <SetTable reps={validReps} />
