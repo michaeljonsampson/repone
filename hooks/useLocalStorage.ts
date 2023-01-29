@@ -1,34 +1,30 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import { DeviceInfo } from '../types';
+import { DeviceInfo, SettingsData } from '../types';
 
 export const useLocalStorage = ({
   setLastDevice,
-  setMinRomForValidRep,
-  setAlertVelocityThreshold,
+  setSettings,
 }: {
   setLastDevice: (device: DeviceInfo | undefined | null) => void;
-  setMinRomForValidRep: (min: number | null) => void;
-  setAlertVelocityThreshold: (vel: number | null) => void;
+  setSettings: React.Dispatch<React.SetStateAction<SettingsData>>;
 }) => {
   React.useEffect(() => {
     const readLocalStorage = async () => {
       const d = await getStoredDevice();
       setLastDevice(d);
 
-      const { minRomForValidRep, alertVelocityThreshold } = await getStoredSettings();
-      setMinRomForValidRep(minRomForValidRep);
-      setAlertVelocityThreshold(alertVelocityThreshold);
+      const settings = await getStoredSettings();
+      setSettings(settings);
     };
 
     readLocalStorage();
-  }, [setAlertVelocityThreshold, setLastDevice, setMinRomForValidRep]);
+  }, [setLastDevice, setSettings]);
 
   const getStoredDevice = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('repone-device');
       const data = jsonValue != null ? (JSON.parse(jsonValue) as DeviceInfo) : null;
-      console.log(data);
       return data;
     } catch (e) {
       console.log(e);
@@ -36,18 +32,10 @@ export const useLocalStorage = ({
   };
 
   const getStoredSettings = async () => {
-    const defaultSettings = { alertVelocityThreshold: null, minRomForValidRep: null };
+    const defaultSettings = {};
     try {
       const jsonValue = await AsyncStorage.getItem('repone-settings');
-
-      const data =
-        jsonValue != null
-          ? (JSON.parse(jsonValue) as {
-              alertVelocityThreshold: number | null;
-              minRomForValidRep: number | null;
-            })
-          : defaultSettings;
-      console.log(data);
+      const data = jsonValue != null ? (JSON.parse(jsonValue) as SettingsData) : defaultSettings;
       return data;
     } catch (e) {
       console.log(e);
@@ -65,27 +53,10 @@ export const useLocalStorage = ({
     }
   };
 
-  const storeSettings = async ({
-    alertVelocityThreshold,
-    minRomForValidRep,
-  }: {
-    alertVelocityThreshold: number | null;
-    minRomForValidRep: number | null;
-  }) => {
-    console.log('storing', {
-      alertVelocityThreshold,
-      minRomForValidRep,
-    });
+  const storeSettings = async (settings: SettingsData) => {
     try {
-      const jsonValue = JSON.stringify({
-        alertVelocityThreshold,
-        minRomForValidRep,
-      });
+      const jsonValue = JSON.stringify(settings);
       await AsyncStorage.setItem('repone-settings', jsonValue);
-      console.log('stored', {
-        alertVelocityThreshold,
-        minRomForValidRep,
-      });
     } catch (e) {
       console.log(e);
     }

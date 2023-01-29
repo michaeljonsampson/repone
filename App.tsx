@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Pressable, StyleSheet, Text, View, LogBox } from 'react-native';
-import { DeviceInfo, Rep } from './types';
+import { DeviceInfo, Rep, SettingsData } from './types';
 import LastRep from './components/LastRep';
 import SetTable from './components/SetTable';
 import Connect from './components/Connect';
@@ -11,7 +11,6 @@ import Log from './components/Log';
 import Modal from './components/Modal';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useNegativeBeep } from './hooks/useNegativeBeep';
-import { signalStrengthMap } from './lib/signalStrengthMap';
 import { useDevice } from './hooks/useDevice';
 
 LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
@@ -39,21 +38,22 @@ export default function App() {
   const [reps, setReps] = React.useState<Rep[]>([]);
   const [lastDevice, setLastDevice] = React.useState<DeviceInfo | null>();
 
-  const [minRomForValidRep, setMinRomForValidRep] = React.useState<number | null>(null);
-  const [alertVelocityThreshold, setAlertVelocityThreshold] = React.useState<number | null>(null);
+  const [settings, setSettings] = React.useState<SettingsData>({});
 
   const validReps = React.useMemo(
-    () => reps.filter((r) => r.rom && (!minRomForValidRep || r.rom >= minRomForValidRep)),
-    [minRomForValidRep, reps]
+    () =>
+      reps.filter(
+        (r) => r.rom && (!settings.minRomForValidRep || r.rom >= settings.minRomForValidRep)
+      ),
+    [reps, settings.minRomForValidRep]
   );
 
   const { storeDevice, storeSettings } = useLocalStorage({
     setLastDevice,
-    setMinRomForValidRep,
-    setAlertVelocityThreshold,
+    setSettings,
   });
 
-  useNegativeBeep({ validReps, alertVelocityThreshold });
+  useNegativeBeep({ validReps, settings });
 
   const {
     log,
@@ -72,18 +72,11 @@ export default function App() {
     stopScan,
   } = useDevice({ lastDevice, storeDevice, setReps });
 
-  const sensorStrength = React.useMemo(() => {
-    if (!sensor) {
-      return '';
-    }
-    return `${rssi ? signalStrengthMap[rssi] ?? '0' : '0'}% ( ${rssi ?? '0'} )`;
-  }, [rssi, sensor]);
-
   return (
     <View style={styles.container}>
       <View style={styles.buttonRow}>
         <Pressable style={styles.button} onPress={() => setConnectionModalOpen(true)}>
-          <Text style={styles.buttonText}>Connect</Text>
+          <Text style={styles.buttonText}>{sensor ? 'Connected' : 'Connect'}</Text>
         </Pressable>
         <Pressable style={styles.button} onPress={() => setLogModalOpen(true)}>
           <Text style={styles.buttonText}>Log</Text>
@@ -111,22 +104,17 @@ export default function App() {
           connecting={connecting}
           sensor={sensor}
           disconnect={disconnect}
-          sensorStrength={sensorStrength}
+          rssi={rssi}
         />
       </Modal>
       <Modal
         open={settingsModalOpen}
         onClose={() => {
-          storeSettings({ minRomForValidRep, alertVelocityThreshold });
+          storeSettings(settings);
           setSettingsModalOpen(false);
         }}
       >
-        <Settings
-          minRomForValidRep={minRomForValidRep}
-          setMinRomForValidRep={setMinRomForValidRep}
-          alertVelocityThreshold={alertVelocityThreshold}
-          setAlertVelocityThreshold={setAlertVelocityThreshold}
-        />
+        <Settings settings={settings} setSettings={setSettings} />
       </Modal>
       <Modal
         open={logModalOpen}

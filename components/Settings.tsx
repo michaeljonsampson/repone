@@ -1,28 +1,42 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
+import { SettingsData } from '../types';
 
 export default function Settings({
-  minRomForValidRep,
-  setMinRomForValidRep,
-  alertVelocityThreshold,
-  setAlertVelocityThreshold,
+  settings,
+  setSettings,
 }: {
-  minRomForValidRep: number | null;
-  setMinRomForValidRep: (minRomForValidRep: number | null) => void;
-  alertVelocityThreshold: number | null;
-  setAlertVelocityThreshold: (alertVelocityThreshold: number | null) => void;
+  settings: SettingsData;
+  setSettings: React.Dispatch<React.SetStateAction<SettingsData>>;
 }) {
   const styles = useMakeStyles(makeStyles);
 
   return (
     <View>
       <View style={styles.setting}>
-        <Text style={styles.text}>Alert Velocity Threshold in mm: </Text>
+        <Text style={styles.text}>Alert Velocity Threshold in mm/s: </Text>
         <TextInput
           style={styles.input}
-          onChangeText={(v) => setAlertVelocityThreshold(Number(v))}
-          value={alertVelocityThreshold ? String(alertVelocityThreshold) : ''}
+          onChangeText={(v) =>
+            setSettings((prev) => ({ ...prev, alertVelocityThreshold: Number(v) }))
+          }
+          value={settings.alertVelocityThreshold ? String(settings.alertVelocityThreshold) : ''}
+          keyboardType="numeric"
+        />
+      </View>
+      <View style={styles.setting}>
+        <Text style={styles.text}>Alert Velocity Drop Threshold in %:</Text>
+        <TextInput
+          style={styles.input}
+          onChangeText={(v) =>
+            setSettings((prev) => ({ ...prev, alertVelocityDecreasePercent: Number(v) }))
+          }
+          value={
+            settings.alertVelocityDecreasePercent
+              ? String(settings.alertVelocityDecreasePercent)
+              : ''
+          }
           keyboardType="numeric"
         />
       </View>
@@ -30,8 +44,8 @@ export default function Settings({
         <Text style={styles.text}>Minimum ROM to record rep in mm:</Text>
         <TextInput
           style={styles.input}
-          onChangeText={(v) => setMinRomForValidRep(Number(v))}
-          value={minRomForValidRep ? String(minRomForValidRep) : ''}
+          onChangeText={(v) => setSettings((prev) => ({ ...prev, minRomForValidRep: Number(v) }))}
+          value={settings.minRomForValidRep ? String(settings.minRomForValidRep) : ''}
           keyboardType="numeric"
         />
       </View>

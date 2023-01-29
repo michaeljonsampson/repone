@@ -4,6 +4,7 @@ import { sortBy } from 'lodash';
 import { Device } from 'react-native-ble-plx';
 import { MakeStyles, useMakeStyles } from '../hooks/useMakeStyles';
 import { DeviceInfo } from '../types';
+import { signalStrengthMap } from '../lib/signalStrengthMap';
 
 export default function Connect({
   scanning,
@@ -18,7 +19,7 @@ export default function Connect({
   connecting,
   sensor,
   disconnect,
-  sensorStrength,
+  rssi,
 }: {
   scanning: boolean;
   scanForDevices: () => void;
@@ -32,9 +33,16 @@ export default function Connect({
   connecting: boolean;
   sensor: Device | undefined | null;
   disconnect: () => void;
-  sensorStrength: string;
+  rssi: number | undefined | null;
 }) {
   const styles = useMakeStyles(makeStyles);
+
+  const sensorStrength = React.useMemo(() => {
+    if (!sensor) {
+      return '';
+    }
+    return `${rssi ? signalStrengthMap[rssi] ?? '0' : '0'}% ( ${rssi ?? '0'} )`;
+  }, [rssi, sensor]);
 
   if (connecting) {
     return (
@@ -137,6 +145,12 @@ const makeStyles = ({ vmin }: MakeStyles) => {
       marginBottom: 5 * vmin,
     },
     text: { color: 'white' },
-    sensorStrength: { fontSize: 4 * vmin, fontWeight: 'bold', color: 'white' },
+    sensorStrength: {
+      fontSize: 4 * vmin,
+      fontWeight: 'bold',
+      color: 'white',
+      marginBottom: 4 * vmin,
+      textAlign: 'center',
+    },
   });
 };

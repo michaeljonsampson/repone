@@ -13,3 +13,9 @@ export type Rep = {
 };
 
 export type DeviceInfo = { name?: string | null | undefined; id?: string };
+
+export type SettingsData = {
+  minRomForValidRep?: number | null | undefined;
+  alertVelocityThreshold?: number | null | undefined;
+  alertVelocityDecreasePercent?: number | null | undefined;
+};
